@@ -1,21 +1,10 @@
 events = [
-    {"summary": "Brückentag (Kita bleibt zu)", "date": "04.10.2024"},
+    # Single-day event
     {"summary": "Trödelmarkt", "date": "18.10.2024"},
-    {"summary": "Teamfortbildung (Kita bleibt zu)", "date_start": "21.10.2024", "date_end": "23.10.2024"},
-    {"summary": "Hasendienst", "date_start": "28.10.2024", "date_end": "01.11.2024"},
-    {"summary": "Herbstputz", "date": "09.11.2024"},
-    {"summary": "Herbstfest", "date": "15.11.2024"},
-    {"summary": "Weihnachtssingen", "date_start": "25.11.2024", "date_end": "16.12.2024", "occurrences": ["25.11.2024", "02.12.2024", "09.12.2024", "16.12.2024"]},
-    {"summary": "Nikolaus", "date": "06.12.2024"},
-    {"summary": "Weihnachtsfeier", "date": "09.12.2024"},
+    # One event that occurs on multiple days that don't match a simple rule
+    {"summary": "Weihnachtssingen", "dates": ["25.11.2024", "02.12.2024", "09.12.2024", "16.12.2024"]},
+    # Multi-day event
     {"summary": "Weihnachtsschließzeit", "date_start": "23.12.2024", "date_end": "31.12.2024"},
-    {"summary": "Neujahrsempfang", "date": "07.02.2025"},
-    {"summary": "Teamfortbildung (Kita bleibt zu)", "date": "07.02.2025"},
-    {"summary": "Elterncafé mit päd. Thema", "date": "02.04.2025"},
-    {"summary": "Brückentag (Kita bleibt zu)", "date": "02.05.2025"},
-    {"summary": "Brückentag (Kita bleibt zu)", "date": "30.05.2025"},
-    {"summary": "Brückentag (Kita bleibt zu)", "date": "30.05.2025"},
-    {"summary": "Kita-Übernachtung placeholder (date TBA)", "date": "01.06.2025"}, 
-    {"summary": "Teamtag (Kita bleibt zu)", "date": "11.07.2025"},
-    {"summary": "Zuckertütenfest", "date": "18.07.2025"}
+    # Recurring event every 2 weeks
+    {"summary": "Biweekly Event", "date": "01.02.2025", "recurrence": {"freq": "WEEKLY", "interval": 2,  "until": "01.06.2025"}}
 ]
