@@ -12,24 +12,25 @@ def create_ics(events, output_file):
     for event in events:
         ical_event = Event()
         ical_event.add("summary", event["summary"])
-        
+
         if "date_start" in event and "date_end" in event:
-            # Multi-day all-day event
+            # Multi-day event
             start_date = datetime.strptime(event["date_start"], "%d.%m.%Y").date()
             end_date = datetime.strptime(event["date_end"], "%d.%m.%Y").date()
-            ical_event.add("dtstart", start_date)
-            ical_event.add("dtend", end_date + timedelta(days=1))  # End is exclusive in iCal
-        elif "date" in event:
-            # Single-day all-day event
-            event_date = datetime.strptime(event["date"], "%d.%m.%Y").date()
-            ical_event.add("dtstart", event_date)
-            ical_event.add("dtend", event_date + timedelta(days=1))  # All-day event
 
-        # Add the event to the calendar
+            ical_event.add("dtstart", start_date)
+            ical_event.add("dtend", end_date + timedelta(days=1))  # End date is exclusive
+
+        else:
+            # Single-day event
+            event_date = datetime.strptime(event["date"], "%d.%m.%Y").date()
+
+            ical_event.add("dtstart", event_date)
+            ical_event.add("dtend", event_date + timedelta(days=1))  # All-day event ends the next day
+
         cal.add_component(ical_event)
 
-    # Write to the .ics file
-    with open(output_file, "wb") as f:
+    with open(output_file, 'wb') as f:
         f.write(cal.to_ical())
 
 # Main function to handle arguments and file processing
