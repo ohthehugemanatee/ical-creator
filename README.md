@@ -49,7 +49,7 @@ For further details see the [icalendar documentation](https://icalendar.readthed
 
 ### Exceptions array
 
-In the same input file as your events array, you may optionally define an array called `exceptions`, of date ranges which should be excluded from the events in the events array. This is intended to make holidays easy to handle: you can have events that recur every week (e.g. "Piano lesson") but automatically leave out the winter break, national holidays, etc. 
+In the same input file as your events array, you may optionally define an array called `exceptions`, of date ranges which should be excluded from the events in the events array. This is intended to make holidays easy to handle: you can have events that recur every week (e.g. "Piano lesson") but automatically leave out the winter break, national holidays, etc. Individual exceptions in the array are Objects with `date_start` and `date_end`. You can include whatever other attributes you like in there; the script will ignore them.
 
 ### Prompt to create the array
 
