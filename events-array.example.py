@@ -8,3 +8,8 @@ events = [
     # Recurring event every 2 weeks
     {"summary": "Biweekly Event", "date": "01.02.2025", "recurrence": {"freq": "WEEKLY", "interval": 2,  "until": "01.06.2025"}}
 ]
+
+exceptions = [
+            {"title": "Mom's birthday", "date_start": "02.01.2023", "date_end": "02.01.2023"},
+            {"date_start": "05.01.2023", "date_end": "05.01.2023", "reason": "Public holiday"}
+        ]
