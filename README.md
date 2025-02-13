@@ -10,13 +10,46 @@ It's basically just a CLI wrapper around the python [icalendar library](https://
 
 The script requires two positional arguments:
 
-- a valid python file containing (just) an array of calendar events to create
+- a valid python file containing an array of calendar events to create, and an optional array of exceptions/holidays
 - the desired filename for your output .ics 
 
-### Events array format
+## Input file
 
-The events array can be just a variable, or a variable explicitly named `events`, at your preference. It should contain objects for each event that will end up in the ICS, formatted appropriately for the [icalendar library](https://pypi.org/project/icalendar/). I've included an example file in this repo.
+The script requires a python array of calendar events to create, and an optional array of exceptions to those calendar events (ie holidays). You provide them both in one file, and give the filename as the first argument to the script. I've included an example file in this repo.
 
+### Events array
+
+If you are not using an exceptions array, you can provide the list of events either as a standalone array or in a variable explicitly named `events`. It should contain objects for each event that will end up in the ICS, formatted appropriately for the [icalendar library](https://pypi.org/project/icalendar/). For example, both of these are valid:
+
+```python
+[
+    # Single-day event
+    {"summary": "Trödelmarkt", "date": "18.10.2024"},
+    # One event that occurs on multiple days that don't match a simple rule
+    {"summary": "Weihnachtssingen", "dates": ["25.11.2024", "02.12.2024", "09.12.2024", "16.12.2024"]}
+]
+```
+```python
+events = [
+    # Single-day event
+    {"summary": "Trödelmarkt", "date": "18.10.2024"},
+    # One event that occurs on multiple days that don't match a simple rule
+    {"summary": "Weihnachtssingen", "dates": ["25.11.2024", "02.12.2024", "09.12.2024", "16.12.2024"]}
+]
+```
+
+Events all have a "Summary" and date/recurrence information. This can be:
+
+* single day (`{"summary": "Trödelmarkt", "date": "18.10.2024"}`)
+* multi-day (`{"summary": "Weihnachtsschließzeit", "date_start": "23.12.2024", "date_end": "31.12.2024"}`)
+* multiple individual days (`{"summary": "Weihnachtssingen", "dates": ["25.11.2024", "02.12.2024", "09.12.2024", "16.12.2024"]}`)
+* recurring (`{"summary": "Biweekly Event", "date": "01.02.2025", "recurrence": {"freq": "WEEKLY", "interval": 2,  "until": "01.06.2025"}}`)
+
+For further details see the [icalendar documentation](https://icalendar.readthedocs.io/en/latest/api.html). Note that features apart from title, date, and recurrance rules are not supported by this tool... but it would not be hard to add them.  
+
+### Exceptions array
+
+In the same input file as your events array, you may optionally define an array called `exceptions`, of date ranges which should be excluded from the events in the events array. This is intended to make holidays easy to handle: you can have events that recur every week (e.g. "Piano lesson") but automatically leave out the winter break, national holidays, etc. 
 
 ### Prompt to create the array
 
@@ -55,6 +88,10 @@ Here's a prompt you can use to create the array from your arbitrary image or PDF
 ## Caveats
 
 Obviously this is a very rough-and-ready little snippet. It blindly calls `eval` on whatever is in that events array file, so malicious (or really any) code in there can ruin your day, hide your keys, steal your car, or break up with your loved ones. 
+
+And LLMs are not optimized for OCR. They do a surprisingly good job at it, but make sneaky mistakes all the time.
+
+And overall, this is a tool I made for me, for my own purposes. I am not responsible for whatever you do with it, or how it wrecks your (or anyone else's) life.
 
 
 ## Maintenance
