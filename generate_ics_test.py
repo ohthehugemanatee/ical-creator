@@ -98,28 +98,47 @@ class TestGenerateICS(unittest.TestCase):
         self.assertIn("DTSTART;VALUE=DATE:20230105", ical_content)
         self.assertIn("DTSTART;VALUE=DATE:20230110", ical_content)
 
-    def test_exceptions(self):
+    def test_exceptions(self):   
         create_ics(self.events, self.output_file, self.exceptions)
         with open(self.output_file, 'rb') as f:
             ical_content = f.read().decode()
 
         cal = Calendar.from_ical(ical_content)
 
+        single_day_event_dates = []
+        multi_day_event_dates = []
+        recurring_event_exdates = []
+        multiple_specific_dates_event_dates = []
+
         for component in cal.walk():
             if component.name == "VEVENT":
-                if component.get("SUMMARY") == "Single Day Event":
-                    self.assertIn("DTSTART;VALUE=DATE:20230101", component.to_ical().decode())
-                elif component.get("SUMMARY") == "Multi Day Event":
-                    self.assertIn("DTSTART;VALUE=DATE:20230101", component.to_ical().decode())
-                    self.assertIn("DTSTART;VALUE=DATE:20230103", component.to_ical().decode())
-                    self.assertNotIn("DTSTART;VALUE=DATE:20230102", component.to_ical().decode())
-                elif component.get("SUMMARY") == "Recurring Event":
-                    self.assertIn("RRULE:FREQ=DAILY;INTERVAL=1;COUNT=5", component.to_ical().decode())
-                    self.assertIn("EXDATE;VALUE=DATE:20230102", component.to_ical().decode())
-                elif component.get("SUMMARY") == "Multiple Specific Dates Event":
-                    self.assertIn("DTSTART;VALUE=DATE:20230101", component.to_ical().decode())
-                    self.assertIn("DTSTART;VALUE=DATE:20230110", component.to_ical().decode())
-                    self.assertNotIn("DTSTART;VALUE=DATE:20230105", component.to_ical().decode())
+                summary = component.get("SUMMARY")
+                dtstart = component.get("DTSTART").dt.strftime("%Y%m%d")
+                if summary == "Single Day Event":
+                    single_day_event_dates.append(dtstart)
+                elif summary == "Multi Day Event":
+                    multi_day_event = component
+                elif summary == "Recurring Event":
+                    if "EXDATE" in component:
+                        exdate = component.get("EXDATE")
+                        exdate_values = exdate.dts
+                        recurring_event_exdates = [dt.dt.strftime("%Y%m%d") for dt in exdate_values]
+                elif summary == "Multiple Specific Dates Event":
+                    multiple_specific_dates_event_dates.append(dtstart)
+
+        self.assertIn("20230101", single_day_event_dates)
+        self.assertEqual(multi_day_event.get("DTSTART").dt.strftime("%Y%m%d"), "20230101")
+        self.assertEqual(multi_day_event.get("DTEND").dt.strftime("%Y%m%d"), "20230104")  # End date is exclusive
+        exdate = multi_day_event.get("EXDATE")
+        self.assertIsNotNone(exdate)
+        exdate_values = exdate.dts
+        multi_day_event_exdates = [dt.dt.strftime("%Y%m%d") for dt in exdate_values]
+        self.assertIn("20230102", multi_day_event_exdates)
+        self.assertIn("20230102", recurring_event_exdates)
+        self.assertIn("20230105", recurring_event_exdates)
+        self.assertIn("20230101", multiple_specific_dates_event_dates)
+        self.assertIn("20230110", multiple_specific_dates_event_dates)
+        self.assertNotIn("20230105", multiple_specific_dates_event_dates)
 
 
 if __name__ == "__main__":
