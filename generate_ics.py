@@ -1,10 +1,8 @@
 import argparse
-import json
 import os
 from icalendar import Calendar, Event
 from icalendar.prop import vRecur
 from datetime import datetime, timedelta
-import pytz
 
 # Function to create the .ics file
 def create_ics(events, output_file):
