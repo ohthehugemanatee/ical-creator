@@ -19,39 +19,25 @@ The script requires a python array of calendar events to create, and an optional
 
 ### Events array
 
-If you are not using an exceptions array, you can provide the list of events either as a standalone array or in a variable explicitly named `events`. It should contain objects for each event that will end up in the ICS, formatted appropriately for the [icalendar library](https://pypi.org/project/icalendar/). For example, both of these are valid:
+If you are not using an exceptions array, you can provide the list of events either as a standalone array or in a variable explicitly named `events`. It should contain objects for each event that will end up in the ICS, with the following possible keys:
 
-```python
-[
-    # Single-day event
-    {"summary": "Trödelmarkt", "date": "18.10.2024"},
-    # One event that occurs on multiple days that don't match a simple rule
-    {"summary": "Weihnachtssingen", "dates": ["25.11.2024", "02.12.2024", "09.12.2024", "16.12.2024"]}
-]
-```
-```python
-events = [
-    # Single-day event
-    {"summary": "Trödelmarkt", "date": "18.10.2024"},
-    # One event that occurs on multiple days that don't match a simple rule
-    {"summary": "Weihnachtssingen", "dates": ["25.11.2024", "02.12.2024", "09.12.2024", "16.12.2024"]}
-]
-```
+- `summary`: Event title (required)
+- Some kind of date information. All dates are formatted `DD.MM.YYYY`.
+    - single day: `date`
+    - multi-day: `date_start` and  `date_end`
+    - multiple individual days: `dates` , an array of date values.
+    - recurring: `recurrence`, an Object with values `freq`, `interval`, and `until`, per the [dateutil spec](https://dateutil.readthedocs.io/en/stable/rrule.html). Requires a single day `date` key as well.
+- Time range: `start_time` and `end_time` in 24 hour notation (optional).
 
-Events all have a "Summary" and date/recurrence information. This can be:
+Note that features apart from title, date, time, and recurrence rules are not supported by this tool.
 
-* single day (`{"summary": "Trödelmarkt", "date": "18.10.2024"}`)
-* multi-day (`{"summary": "Weihnachtsschließzeit", "date_start": "23.12.2024", "date_end": "31.12.2024"}`)
-* multiple individual days (`{"summary": "Weihnachtssingen", "dates": ["25.11.2024", "02.12.2024", "09.12.2024", "16.12.2024"]}`)
-* recurring (`{"summary": "Biweekly Event", "date": "01.02.2025", "recurrence": {"freq": "WEEKLY", "interval": 2,  "until": "01.06.2025"}}`)
-
-For further details see the [icalendar documentation](https://icalendar.readthedocs.io/en/latest/api.html). Note that features apart from title, date, and recurrance rules are not supported by this tool... but it would not be hard to add them.  
+An example events array file is provided with every possibility included.
 
 ### Exceptions array
 
 In the same input file as your events array, you may optionally define an array called `exceptions`, of date ranges which should be excluded from the events in the events array. This is intended to make holidays easy to handle: you can have events that recur every week (e.g. "Piano lesson") but automatically leave out the winter break, national holidays, etc. Individual exceptions in the array are Objects with `date_start` and `date_end`. You can include whatever other attributes you like in there; the script will ignore them.
 
-### Prompt to create the array
+### LLM Prompt to create the array
 
 Here's a prompt you can use to create the array from your arbitrary image or PDF or whatever. Modify to suit the format you're providing, because every input is different. One school gives a stupid calendar-ish layout, another club gives a table, another activity gives a bullet list, and they all give me a headache.
 

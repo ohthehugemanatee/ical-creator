@@ -1,6 +1,6 @@
 events = [
     # Single-day event
-    {"summary": "Trödelmarkt", "date": "18.10.2024"},
+    {"summary": "Trödelmarkt", "date": "18.10.2024", "start_time": "10:00", "end_time": "12:00" },
     # One event that occurs on multiple days that don't match a simple rule
     {"summary": "Weihnachtssingen", "dates": ["25.11.2024", "02.12.2024", "09.12.2024", "16.12.2024"]},
     # Multi-day event
