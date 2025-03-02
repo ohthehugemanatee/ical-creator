@@ -223,6 +223,39 @@ class TestGenerateICS(unittest.TestCase):
                 self.assertIn(dtstart, ["20230101T140000", "20230105T140000", "20230110T140000"])
                 self.assertIn(dtend, ["20230101T160000", "20230105T160000", "20230110T160000"])
 
+    # GCal requires time format matches between DTSTART and EXDATE
+    def test_exceptions_with_gcal_time_matching(self):
+        event_with_time = {
+            "summary": "Recurring Event with Time and Exceptions",
+            "date": "01.01.2023",
+            "start_time": "08:00",
+            "end_time": "09:00",
+            "recurrence": {
+                "freq": "DAILY",
+                "interval": 1,
+                "count": 5
+            }
+        }
+        exceptions_with_time = [
+            {"date_start": "02.01.2023", "date_end": "02.01.2023"},
+            {"date_start": "05.01.2023", "date_end": "05.01.2023"}
+        ]
+        create_ics([event_with_time], self.output_file, exceptions_with_time)
+        with open(self.output_file, 'rb') as f:
+            ical_content = f.read().decode()
+
+        cal = Calendar.from_ical(ical_content)
+        for component in cal.walk():
+            if component.name == "VEVENT":
+                if component.get("SUMMARY") == "Recurring Event with Time and Exceptions":
+                    self.assertEqual(component.get("DTSTART").dt.strftime("%Y%m%dT%H%M%S"), "20230101T080000")
+                    self.assertEqual(component.get("DTEND").dt.strftime("%Y%m%dT%H%M%S"), "20230101T090000")
+                    exdate = component.get("EXDATE")
+                    self.assertIsNotNone(exdate)
+                    exdate_values = exdate.dts
+                    exdate_dates = [dt.dt.strftime("%Y%m%dT%H%M%S") for dt in exdate_values]
+                    self.assertIn("20230102T000000", exdate_dates)
+                    self.assertIn("20230105T000000", exdate_dates)
 
 if __name__ == "__main__":
     unittest.main()
