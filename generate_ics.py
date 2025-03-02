@@ -25,7 +25,7 @@ def create_ics(events, output_file, exceptions=None):
                 if event_date in exception_dates:
                     continue
                 ical_event = Event()
-                ical_event.add("summary", event["summary"])
+                ical_event.add("summary", event["summary"], parameters={"CHARSET": "UTF-8"})
                 if "start_time" in event and "end_time" in event:
                     start_datetime = datetime.strptime(date_str + " " + event["start_time"], "%d.%m.%Y %H:%M")
                     end_datetime = datetime.strptime(date_str + " " + event["end_time"], "%d.%m.%Y %H:%M")
@@ -43,7 +43,7 @@ def create_ics(events, output_file, exceptions=None):
             end_date = datetime.strptime(event["date_end"], "%d.%m.%Y").date()
 
             ical_event = Event()
-            ical_event.add("summary", event["summary"])
+            ical_event.add("summary", event["summary"], parameters={"CHARSET": "UTF-8"})
             if "start_time" in event and "end_time" in event:
                 start_datetime = datetime.combine(start_date, datetime.strptime(event["start_time"], "%H:%M").time())
                 end_datetime = datetime.combine(end_date, datetime.strptime(event["end_time"], "%H:%M").time())
@@ -63,7 +63,7 @@ def create_ics(events, output_file, exceptions=None):
         elif "recurrence" in event:
             # Handle recurring events
             ical_event = Event()
-            ical_event.add("summary", event["summary"])
+            ical_event.add("summary", event["summary"], parameters={"CHARSET": "UTF-8"})
             event_date = datetime.strptime(event["date"], "%d.%m.%Y").date()
             if "start_time" in event and "end_time" in event:
                 start_datetime = datetime.combine(event_date, datetime.strptime(event["start_time"], "%H:%M").time())
@@ -94,7 +94,7 @@ def create_ics(events, output_file, exceptions=None):
             event_date = datetime.strptime(event["date"], "%d.%m.%Y").date()
             if event_date not in exception_dates:
                 ical_event = Event()
-                ical_event.add("summary", event["summary"])
+                ical_event.add("summary", event["summary"], parameters={"CHARSET": "UTF-8"})
                 if "start_time" in event and "end_time" in event:
                     start_datetime = datetime.combine(event_date, datetime.strptime(event["start_time"], "%H:%M").time())
                     end_datetime = datetime.combine(event_date, datetime.strptime(event["end_time"], "%H:%M").time())
