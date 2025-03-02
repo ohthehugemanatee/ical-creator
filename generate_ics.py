@@ -53,8 +53,8 @@ def create_ics(events, output_file, exceptions=None):
                 ical_event.add("dtstart", start_date)
                 ical_event.add("dtend", end_date + timedelta(days=1))  # End date is exclusive
 
-            # Add EXDATE for exception dates within the range
-            exdates = [datetime.combine(date, datetime.min.time()) for date in exception_dates if start_date <= date <= end_date]
+            # Add EXDATE for exception dates within the range. Note the start time is included for a gcal bug.
+            exdates = [datetime.combine(date, start_datetime.time()) for date in exception_dates if start_date <= date <= end_date]
             if exdates:
                 ical_event.add("exdate", exdates)
 
@@ -83,7 +83,7 @@ def create_ics(events, output_file, exceptions=None):
                 rrule['UNTIL'] = until_date
 
             ical_event.add("rrule", rrule)
-            exdates = [datetime.combine(date, datetime.min.time()) for date in exception_dates if date >= event_date]
+            exdates = [datetime.combine(date, start_datetime.time()) for date in exception_dates if date >= event_date]
             if exdates:
                 ical_event.add("exdate", exdates)
 

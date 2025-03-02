@@ -254,8 +254,8 @@ class TestGenerateICS(unittest.TestCase):
                     self.assertIsNotNone(exdate)
                     exdate_values = exdate.dts
                     exdate_dates = [dt.dt.strftime("%Y%m%dT%H%M%S") for dt in exdate_values]
-                    self.assertIn("20230102T000000", exdate_dates)
-                    self.assertIn("20230105T000000", exdate_dates)
+                    self.assertIn("20230102T080000", exdate_dates)
+                    self.assertIn("20230105T080000", exdate_dates)
 
 if __name__ == "__main__":
     unittest.main()
