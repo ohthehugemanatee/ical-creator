@@ -1,0 +1,26 @@
+{
+    "configurations": [
+        {
+            "type": "debugpy",
+            "request": "launch",
+            "name": "Launch generate_ics.py",
+            "program": "${workspaceFolder}/generate_ics.py",
+            "args": [
+                "${input:inputFile}",
+                "${input:outputFile}"
+            ]
+        }
+    ],
+    "inputs": [
+        {
+            "type": "promptString",
+            "id": "inputFile",
+            "description": "Path to the Python file containing the events array"
+        },
+        {
+            "type": "promptString",
+            "id": "outputFile",
+            "description": "Desired output .ics file name"
+        }
+    ]
+}
