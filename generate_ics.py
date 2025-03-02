@@ -26,8 +26,14 @@ def create_ics(events, output_file, exceptions=None):
                     continue
                 ical_event = Event()
                 ical_event.add("summary", event["summary"])
-                ical_event.add("dtstart", event_date)
-                ical_event.add("dtend", event_date + timedelta(days=1))  # All-day event ends next day
+                if "start_time" in event and "end_time" in event:
+                    start_datetime = datetime.strptime(date_str + " " + event["start_time"], "%d.%m.%Y %H:%M")
+                    end_datetime = datetime.strptime(date_str + " " + event["end_time"], "%d.%m.%Y %H:%M")
+                    ical_event.add("dtstart", start_datetime)
+                    ical_event.add("dtend", end_datetime)
+                else:
+                    ical_event.add("dtstart", event_date)
+                    ical_event.add("dtend", event_date + timedelta(days=1))  # All-day event ends next day
 
                 cal.add_component(ical_event)
 
@@ -38,8 +44,14 @@ def create_ics(events, output_file, exceptions=None):
 
             ical_event = Event()
             ical_event.add("summary", event["summary"])
-            ical_event.add("dtstart", start_date)
-            ical_event.add("dtend", end_date + timedelta(days=1))  # End date is exclusive
+            if "start_time" in event and "end_time" in event:
+                start_datetime = datetime.combine(start_date, datetime.strptime(event["start_time"], "%H:%M").time())
+                end_datetime = datetime.combine(end_date, datetime.strptime(event["end_time"], "%H:%M").time())
+                ical_event.add("dtstart", start_datetime)
+                ical_event.add("dtend", end_datetime)
+            else:
+                ical_event.add("dtstart", start_date)
+                ical_event.add("dtend", end_date + timedelta(days=1))  # End date is exclusive
 
             # Add EXDATE for exception dates within the range
             exdates = [date for date in exception_dates if start_date <= date <= end_date]
@@ -52,10 +64,15 @@ def create_ics(events, output_file, exceptions=None):
             # Handle recurring events
             ical_event = Event()
             ical_event.add("summary", event["summary"])
-            
-            start_date = datetime.strptime(event["date"], "%d.%m.%Y").date()
-            ical_event.add("dtstart", start_date)
-            ical_event.add("dtend", start_date + timedelta(days=1))  # All-day event ends next day
+            event_date = datetime.strptime(event["date"], "%d.%m.%Y").date()
+            if "start_time" in event and "end_time" in event:
+                start_datetime = datetime.combine(event_date, datetime.strptime(event["start_time"], "%H:%M").time())
+                end_datetime = datetime.combine(event_date, datetime.strptime(event["end_time"], "%H:%M").time())
+                ical_event.add("dtstart", start_datetime)
+                ical_event.add("dtend", end_datetime)
+            else:
+                ical_event.add("dtstart", event_date)
+                ical_event.add("dtend", event_date + timedelta(days=1))  # All-day event ends next day
             
             # Add recurrence rule
             rrule = vRecur(freq=event["recurrence"]["freq"], interval=event["recurrence"]["interval"])
@@ -78,8 +95,14 @@ def create_ics(events, output_file, exceptions=None):
             if event_date not in exception_dates:
                 ical_event = Event()
                 ical_event.add("summary", event["summary"])
-                ical_event.add("dtstart", event_date)
-                ical_event.add("dtend", event_date + timedelta(days=1))  # All-day event ends next day
+                if "start_time" in event and "end_time" in event:
+                    start_datetime = datetime.combine(event_date, datetime.strptime(event["start_time"], "%H:%M").time())
+                    end_datetime = datetime.combine(event_date, datetime.strptime(event["end_time"], "%H:%M").time())
+                    ical_event.add("dtstart", start_datetime)
+                    ical_event.add("dtend", end_datetime)
+                else:
+                    ical_event.add("dtstart", event_date)
+                    ical_event.add("dtend", event_date + timedelta(days=1))  # All-day event ends next day
 
                 cal.add_component(ical_event)
 
