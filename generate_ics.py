@@ -123,19 +123,19 @@ def main():
     # Load the arrays from the input file
     if os.path.exists(args.input_file):
         with open(args.input_file, "r") as f:
+            file_content = f.read()
             # Events array
-            exec(f.read(), {}, events)  # Execute the input file safely in a controlled environment
+            exec(file_content, {}, events)  # Execute the input file safely in a controlled environment
             events = events["events"]  # Get the "events" variable from the executed code
             if isinstance(events, dict) and "events" in events:
                 events = events["events"]  # Safely get the array if defined in a dictionary
             # Exceptions array (if present)
-            exec(f.read(), {}, exceptions)  # Execute the input file safely in a controlled environment
+            exec(file_content, {}, exceptions)  # Execute the input file safely in a controlled environment
             # If the "exceptions" array is defined in the input file
             if "exceptions" in exceptions:
                 exceptions = exceptions["exceptions"]  # Get the "exceptions" variable from the executed code
                 if isinstance(exceptions, dict) and "exceptions" in events:
                     exceptions = exceptions["exceptions"]  # Safely get the array if defined in a dictionary
- 
     else:
         print(f"Error: File {args.input_file} not found.")
         return
