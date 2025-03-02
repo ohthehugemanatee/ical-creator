@@ -140,6 +140,89 @@ class TestGenerateICS(unittest.TestCase):
         self.assertIn("20230110", multiple_specific_dates_event_dates)
         self.assertNotIn("20230105", multiple_specific_dates_event_dates)
 
+    def test_single_day_event_with_time(self):
+        event_with_time = {
+            "summary": "Single Day Event with Time",
+            "date": "01.01.2023",
+            "start_time": "10:00",
+            "end_time": "12:00"
+        }
+        create_ics([event_with_time], self.output_file)
+        with open(self.output_file, 'rb') as f:
+            ical_content = f.read().decode()
+
+        cal = Calendar.from_ical(ical_content)
+        for component in cal.walk():
+            if component.name == "VEVENT":
+                self.assertEqual(component.get("SUMMARY"), "Single Day Event with Time")
+                self.assertEqual(component.get("DTSTART").dt.strftime("%Y%m%dT%H%M%S"), "20230101T100000")
+                self.assertEqual(component.get("DTEND").dt.strftime("%Y%m%dT%H%M%S"), "20230101T120000")
+
+    def test_multi_day_event_with_time(self):
+        event_with_time = {
+            "summary": "Multi Day Event with Time",
+            "date_start": "01.01.2023",
+            "date_end": "03.01.2023",
+            "start_time": "09:00",
+            "end_time": "17:00"
+        }
+        create_ics([event_with_time], self.output_file)
+        with open(self.output_file, 'rb') as f:
+            ical_content = f.read().decode()
+
+        cal = Calendar.from_ical(ical_content)
+        for component in cal.walk():
+            if component.name == "VEVENT":
+                self.assertEqual(component.get("SUMMARY"), "Multi Day Event with Time")
+                self.assertEqual(component.get("DTSTART").dt.strftime("%Y%m%dT%H%M%S"), "20230101T090000")
+                self.assertEqual(component.get("DTEND").dt.strftime("%Y%m%dT%H%M%S"), "20230103T170000")
+
+    def test_recurring_event_with_time(self):
+        event_with_time = {
+            "summary": "Recurring Event with Time",
+            "date": "01.01.2023",
+            "start_time": "08:00",
+            "end_time": "09:00",
+            "recurrence": {
+                "freq": "DAILY",
+                "interval": 1,
+                "count": 5
+            }
+        }
+        create_ics([event_with_time], self.output_file)
+        with open(self.output_file, 'rb') as f:
+            ical_content = f.read().decode()
+
+        cal = Calendar.from_ical(ical_content)
+        for component in cal.walk():
+            if component.name == "VEVENT":
+                self.assertEqual(component.get("SUMMARY"), "Recurring Event with Time")
+                self.assertEqual(component.get("DTSTART").dt.strftime("%Y%m%dT%H%M%S"), "20230101T080000")
+                self.assertEqual(component.get("DTEND").dt.strftime("%Y%m%dT%H%M%S"), "20230101T090000")
+                self.assertEqual(component.get("RRULE")["FREQ"][0], "DAILY")
+                self.assertEqual(component.get("RRULE")["INTERVAL"][0], 1)
+                self.assertEqual(component.get("RRULE")["COUNT"][0], 5)
+
+    def test_multiple_specific_dates_event_with_time(self):
+        event_with_time = {
+            "summary": "Multiple Specific Dates Event with Time",
+            "dates": ["01.01.2023", "05.01.2023", "10.01.2023"],
+            "start_time": "14:00",
+            "end_time": "16:00"
+        }
+        create_ics([event_with_time], self.output_file)
+        with open(self.output_file, 'rb') as f:
+            ical_content = f.read().decode()
+
+        cal = Calendar.from_ical(ical_content)
+        for component in cal.walk():
+            if component.name == "VEVENT":
+                self.assertEqual(component.get("SUMMARY"), "Multiple Specific Dates Event with Time")
+                dtstart = component.get("DTSTART").dt.strftime("%Y%m%dT%H%M%S")
+                dtend = component.get("DTEND").dt.strftime("%Y%m%dT%H%M%S")
+                self.assertIn(dtstart, ["20230101T140000", "20230105T140000", "20230110T140000"])
+                self.assertIn(dtend, ["20230101T160000", "20230105T160000", "20230110T160000"])
+
 
 if __name__ == "__main__":
     unittest.main()
