@@ -257,5 +257,111 @@ class TestGenerateICS(unittest.TestCase):
                     self.assertIn("20230102T080000", exdate_dates)
                     self.assertIn("20230105T080000", exdate_dates)
 
+    def test_single_day_event_with_description(self):
+        event_with_description = {
+            "summary": "Single Day Event with Description",
+            "date": "01.01.2023",
+            "description": "This is a single day event with a description."
+        }
+        create_ics([event_with_description], self.output_file)
+        with open(self.output_file, 'rb') as f:
+            ical_content = f.read().decode()
+
+        cal = Calendar.from_ical(ical_content)
+        for component in cal.walk():
+            if component.name == "VEVENT":
+                self.assertEqual(component.get("SUMMARY"), "Single Day Event with Description")
+                self.assertEqual(component.get("DESCRIPTION"), "This is a single day event with a description.")
+
+    def test_multi_day_event_with_description(self):
+        event_with_description = {
+            "summary": "Multi Day Event with Description",
+            "date_start": "01.01.2023",
+            "date_end": "03.01.2023",
+            "description": "This is a multi day event with a description."
+        }
+        create_ics([event_with_description], self.output_file)
+        with open(self.output_file, 'rb') as f:
+            ical_content = f.read().decode()
+
+        cal = Calendar.from_ical(ical_content)
+        for component in cal.walk():
+            if component.name == "VEVENT":
+                self.assertEqual(component.get("SUMMARY"), "Multi Day Event with Description")
+                self.assertEqual(component.get("DESCRIPTION"), "This is a multi day event with a description.")
+
+    def test_recurring_event_with_description(self):
+        event_with_description = {
+            "summary": "Recurring Event with Description",
+            "date": "01.01.2023",
+            "description": "This is a recurring event with a description.",
+            "recurrence": {
+                "freq": "DAILY",
+                "interval": 1,
+                "count": 5
+            }
+        }
+        create_ics([event_with_description], self.output_file)
+        with open(self.output_file, 'rb') as f:
+            ical_content = f.read().decode()
+
+        cal = Calendar.from_ical(ical_content)
+        for component in cal.walk():
+            if component.name == "VEVENT":
+                self.assertEqual(component.get("SUMMARY"), "Recurring Event with Description")
+                self.assertEqual(component.get("DESCRIPTION"), "This is a recurring event with a description.")
+                self.assertEqual(component.get("RRULE")["FREQ"][0], "DAILY")
+                self.assertEqual(component.get("RRULE")["INTERVAL"][0], 1)
+                self.assertEqual(component.get("RRULE")["COUNT"][0], 5)
+
+    def test_multiple_specific_dates_event_with_description(self):
+        event_with_description = {
+            "summary": "Multiple Specific Dates Event with Description",
+            "dates": ["01.01.2023", "05.01.2023", "10.01.2023"],
+            "description": "This is a multiple specific dates event with a description."
+        }
+        create_ics([event_with_description], self.output_file)
+        with open(self.output_file, 'rb') as f:
+            ical_content = f.read().decode()
+
+        cal = Calendar.from_ical(ical_content)
+        for component in cal.walk():
+            if component.name == "VEVENT":
+                self.assertEqual(component.get("SUMMARY"), "Multiple Specific Dates Event with Description")
+                self.assertEqual(component.get("DESCRIPTION"), "This is a multiple specific dates event with a description.")
+                dtstart = component.get("DTSTART").dt.strftime("%Y%m%d")
+                self.assertIn(dtstart, ["20230101", "20230105", "20230110"])
+
+    def test_exceptions_with_description(self):
+        event_with_description = {
+            "summary": "Recurring Event with Description and Exceptions",
+            "date": "01.01.2023",
+            "description": "This is a recurring event with a description and exceptions.",
+            "recurrence": {
+                "freq": "DAILY",
+                "interval": 1,
+                "count": 5
+            }
+        }
+        exceptions_with_time = [
+            {"date_start": "02.01.2023", "date_end": "02.01.2023"},
+            {"date_start": "05.01.2023", "date_end": "05.01.2023"}
+        ]
+        create_ics([event_with_description], self.output_file, exceptions_with_time)
+        with open(self.output_file, 'rb') as f:
+            ical_content = f.read().decode()
+
+        cal = Calendar.from_ical(ical_content)
+        for component in cal.walk():
+            if component.name == "VEVENT":
+                if component.get("SUMMARY") == "Recurring Event with Description and Exceptions":
+                    self.assertEqual(component.get("DESCRIPTION"), "This is a recurring event with a description and exceptions.")
+                    exdate = component.get("EXDATE")
+                    self.assertIsNotNone(exdate)
+                    exdate_values = exdate.dts
+                    exdate_dates = [dt.dt.strftime("%Y%m%d") for dt in exdate_values]
+                    self.assertIn("20230102", exdate_dates)
+                    self.assertIn("20230105", exdate_dates)
+
 if __name__ == "__main__":
     unittest.main()
