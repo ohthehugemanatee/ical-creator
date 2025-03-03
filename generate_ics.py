@@ -5,18 +5,17 @@ from icalendar.prop import vRecur
 from datetime import datetime, timedelta
 
 # Function to create the .ics file
-def create_ics(events, output_file, exceptions=None):
+def create_ics(events, output_file, exceptions=[]):
     cal = Calendar()
     # Convert exceptions to a set of dates for easy lookup
     exception_dates = set()
-    if exceptions:
-        for exception in exceptions:
-            start_date = datetime.strptime(exception["date_start"], "%d.%m.%Y").date()
-            end_date = datetime.strptime(exception["date_end"], "%d.%m.%Y").date()
-            current_date = start_date
-            while current_date <= end_date:
-                exception_dates.add(current_date)
-                current_date += timedelta(days=1)
+    for exception in exceptions:
+        start_date = datetime.strptime(exception["date_start"], "%d.%m.%Y").date()
+        end_date = datetime.strptime(exception["date_end"], "%d.%m.%Y").date()
+        current_date = start_date
+        while current_date <= end_date:
+            exception_dates.add(current_date)
+            current_date += timedelta(days=1)
 
     for event in events:
         if "dates" in event:  # If the event has multiple specific dates
@@ -127,24 +126,26 @@ def main():
     parser.add_argument("output_file", help="Desired output .ics file name.")
 
     args = parser.parse_args()
-    events = {}
-    exceptions = {}
+    file_content_parsed = {}
+    events = []
+    exceptions = []
     # Load the arrays from the input file
     if os.path.exists(args.input_file):
         with open(args.input_file, "r") as f:
             file_content = f.read()
-            # Events array
-            exec(file_content, {}, events)  # Execute the input file safely in a controlled environment
-            events = events["events"]  # Get the "events" variable from the executed code
-            if isinstance(events, dict) and "events" in events:
-                events = events["events"]  # Safely get the array if defined in a dictionary
-            # Exceptions array (if present)
-            exec(file_content, {}, exceptions)  # Execute the input file safely in a controlled environment
-            # If the "exceptions" array is defined in the input file
-            if "exceptions" in exceptions:
-                exceptions = exceptions["exceptions"]  # Get the "exceptions" variable from the executed code
-                if isinstance(exceptions, dict) and "exceptions" in events:
-                    exceptions = exceptions["exceptions"]  # Safely get the array if defined in a dictionary
+            # Parsed contents of the events file. This could be a naked array or a dict with keys for "events" and optionally, exceptions
+            exec(file_content, {}, file_content_parsed)
+            # Extract from keys if it's a dict
+            if "events" in file_content_parsed:
+                events = file_content_parsed["events"]
+                # Exceptions array is optional
+                if "exceptions" in file_content_parsed:
+                    exceptions = file_content_parsed["exceptions"]
+            # Otherwise, assume it's a naked array
+            else:
+                events = eval(file_content)
+                # Exceptions cannot be defined in this case.
+
     else:
         print(f"Error: File {args.input_file} not found.")
         return
