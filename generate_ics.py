@@ -53,12 +53,12 @@ def create_ics(events, output_file, exceptions=None):
                 end_datetime = datetime.combine(end_date, datetime.strptime(event["end_time"], "%H:%M").time())
                 ical_event.add("dtstart", start_datetime)
                 ical_event.add("dtend", end_datetime)
+                exdates = [datetime.combine(date, start_datetime.time()) for date in exception_dates if start_date <= date <= end_date]
             else:
                 ical_event.add("dtstart", start_date)
                 ical_event.add("dtend", end_date + timedelta(days=1))  # End date is exclusive
+                exdates = [date for date in exception_dates if start_date <= date <= end_date]
 
-            # Add EXDATE for exception dates within the range. Note the start time is included for a gcal bug.
-            exdates = [datetime.combine(date, start_datetime.time()) for date in exception_dates if start_date <= date <= end_date]
             if exdates:
                 ical_event.add("exdate", exdates)
 
@@ -76,10 +76,12 @@ def create_ics(events, output_file, exceptions=None):
                 end_datetime = datetime.combine(event_date, datetime.strptime(event["end_time"], "%H:%M").time())
                 ical_event.add("dtstart", start_datetime)
                 ical_event.add("dtend", end_datetime)
+                exdates = [datetime.combine(date, start_datetime.time()) for date in exception_dates if date >= event_date]
             else:
                 ical_event.add("dtstart", event_date)
                 ical_event.add("dtend", event_date + timedelta(days=1))  # All-day event ends next day
-            
+                exdates = [date for date in exception_dates if date >= event_date]
+
             # Add recurrence rule
             rrule = vRecur(freq=event["recurrence"]["freq"], interval=event["recurrence"]["interval"])
             if "count" in event["recurrence"]:
@@ -89,7 +91,6 @@ def create_ics(events, output_file, exceptions=None):
                 rrule['UNTIL'] = until_date
 
             ical_event.add("rrule", rrule)
-            exdates = [datetime.combine(date, start_datetime.time()) for date in exception_dates if date >= event_date]
             if exdates:
                 ical_event.add("exdate", exdates)
 
