@@ -53,7 +53,7 @@ class TestGenerateICS(unittest.TestCase):
         create_ics([self.events[0]], self.output_file)
         with open(self.output_file, 'rb') as f:
             ical_content = f.read().decode()
-        self.assertIn("SUMMARY:Single Day Event", ical_content)
+        self.assertIn("SUMMARY;CHARSET=UTF-8:Single Day Event", ical_content)
         self.assertIn("DTSTART;VALUE=DATE:20230101", ical_content)
         self.assertIn("DTEND;VALUE=DATE:20230102", ical_content)
 
@@ -61,7 +61,7 @@ class TestGenerateICS(unittest.TestCase):
         create_ics([self.events[1]], self.output_file)
         with open(self.output_file, 'rb') as f:
             ical_content = f.read().decode()
-        self.assertIn("SUMMARY:Multi Day Event", ical_content)
+        self.assertIn("SUMMARY;CHARSET=UTF-8:Multi Day Event", ical_content)
         self.assertIn("DTSTART;VALUE=DATE:20230101", ical_content)
         self.assertIn("DTEND;VALUE=DATE:20230104", ical_content)
 
@@ -71,7 +71,7 @@ class TestGenerateICS(unittest.TestCase):
             ical_content = f.read()
         
         ical_content_text = ical_content.decode()
-        self.assertIn("SUMMARY:Recurring Event", ical_content_text)
+        self.assertIn("SUMMARY;CHARSET=UTF-8:Recurring Event", ical_content_text)
         self.assertIn("DTSTART;VALUE=DATE:20230101", ical_content_text)
         self.assertIn("DTEND;VALUE=DATE:20230102", ical_content_text)
         # Actually load the RRULE to validate it
@@ -93,7 +93,7 @@ class TestGenerateICS(unittest.TestCase):
         create_ics([self.events[3]], self.output_file)
         with open(self.output_file, 'rb') as f:
             ical_content = f.read().decode()
-        self.assertIn("SUMMARY:Multiple Specific Dates Event", ical_content)
+        self.assertIn("SUMMARY;CHARSET=UTF-8:Multiple Specific Dates Event", ical_content)
         self.assertIn("DTSTART;VALUE=DATE:20230101", ical_content)
         self.assertIn("DTSTART;VALUE=DATE:20230105", ical_content)
         self.assertIn("DTSTART;VALUE=DATE:20230110", ical_content)
